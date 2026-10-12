@@ -302,34 +302,34 @@ var THUMBAI_API = {
 
       /* ---------- verdicts, fixes, titles ---------- */
       function bandOf(score){
-        if (score >= 78) return {cls:"good", label:"SCROLL-STOPPER", title:"This one stops thumbs.", text:"Strong across the signals that matter. Ship it — or A/B it against one variant with an even bigger face."};
-        if (score >= 58) return {cls:"mid", label:"SOLID — CLOSE TO GREAT", title:"Good bones. A few fixes from great.", text:"The core works, but one or two weak signals are costing you clicks in the feed. Fix the list below and re-test."};
-        if (score >= 38) return {cls:"mid", label:"NEEDS WORK", title:"It will get scrolled past.", text:"Right now this blends into the feed. The fixes below are ordered by impact — do the first two before anything else."};
-        return {cls:"bad", label:"INVISIBLE IN THE FEED", title:"This thumbnail is invisible.", text:"Low contrast, low color, no anchor for the eye. Don't patch it — rebuild around one face or one object and two loud colors."};
+        if (score >= 78) return {cls:"good", label:"GREAT — READY TO POST", title:"This one will get clicks.", text:"It does the important things well: bright, clear, and easy to understand at a glance. Post it — or try one version with an even bigger face."};
+        if (score >= 58) return {cls:"mid", label:"GOOD — ALMOST GREAT", title:"Good, and close to great.", text:"Most of it works, but one or two weak spots below are costing you clicks. Fix those and check again."};
+        if (score >= 38) return {cls:"mid", label:"NEEDS WORK", title:"People will scroll past this.", text:"Right now it blends in with everything else. The fixes below are in order — do the first two before anything else."};
+        return {cls:"bad", label:"TOO WEAK — REBUILD IT", title:"This thumbnail is invisible.", text:"The colors are dull, nothing stands out, and there is no clear main subject. Don't patch it — start again with one face or one object and two bright colors."};
       }
       function metricMeta(key, st, sc){
         var map = {
-          colorPop: {label:"Color pop", note:"Saturation " + Math.round(st.avgSat*100) + "% · colorfulness " + Math.round(st.colorfulness)},
-          contrast: {label:"Contrast & separation", note:"Dark–light spread σ " + Math.round(st.stdLum) + " of 255"},
-          face: {label:"Face / focal presence", note: st.faceFrac > .01 ? "Main skin-tone region ≈ " + Math.round(st.faceFrac*100) + "% of frame" : "No clear face region detected"},
-          sharp: {label:"Sharpness", note: st.sharpVar > 400 ? "Crisp detail, survives compression" : "Soft detail — compression will hurt"},
-          textZone: {label:"Text space", note:"Cleanest zone: " + st.zoneName + " (" + Math.round(st.zoneShare*100) + "% flat)"},
-          simple: {label:"Clean composition", note:"Edge density " + Math.round(st.edgeDensity*100) + "% — " + (st.edgeDensity > .3 ? "busy frame" : "breathing room present")}
+          colorPop: {label:"Bright colors", note: st.avgSat > .3 ? "Colors are bright and strong" : "Colors look dull — brighten them"},
+          contrast: {label:"Stands out from background", note: st.stdLum > 55 ? "Subject and background are clearly different" : "Subject blends into the background"},
+          face: {label:"Face or main object", note: st.faceFrac > .01 ? "A face/main subject was found, about " + Math.round(st.faceFrac*100) + "% of the picture" : "No clear face or main object found"},
+          sharp: {label:"Sharpness", note: st.sharpVar > 400 ? "Nice and sharp" : "Looks soft — use a clearer, bigger picture"},
+          textZone: {label:"Space for text", note:"Emptiest area: the " + st.zoneName + " — good place for your words"},
+          simple: {label:"Not too cluttered", note: st.edgeDensity > .3 ? "Lots going on — hard to take in quickly" : "Clean and easy to take in"}
         };
         return map[key];
       }
       function fixesFor(st, sc){
         var fixes = [], wins = [];
-        if (sc.colorPop < 55) fixes.push({t:"Push saturation and shrink the palette to 2–3 loud colors. Muted, many-colored frames are the #1 reason thumbnails die in the feed."});
-        else if (sc.colorPop >= 80) wins.push({t:"Color pop is doing its job — saturation and palette discipline are scroll-stopping. Keep this palette for the next video too."});
-        if (sc.contrast < 55) fixes.push({t:"Force a dark-vs-light fight: darken the background or add a bright rim/glow behind the subject so it separates at a squint."});
-        else if (sc.contrast >= 80) wins.push({t:"Contrast is strong — the subject separates from the background even at feed size."});
-        if (sc.face < 40) fixes.push({t:"Add a face or one unmistakable hero object, big. Faces with a readable expression out-click objects; a single object out-clicks a scene."});
-        else if (sc.face >= 70) wins.push({t:"The face/focal region is large and readable — exactly what a 2 cm feed slot needs."});
-        if (sc.sharp < 50) fixes.push({t:"Re-export at 1280×720 minimum and sharpen the subject. Soft exports get softer after YouTube compression."});
-        if (sc.textZone < 50) fixes.push({t:"Clear one zone for text: blur or darken the " + st.zoneName + " and reserve it for max 3 huge words with a thick outline."});
-        else if (sc.textZone >= 75) wins.push({t:"You have a clean text zone (" + st.zoneName + ") — spend it on 3 words or fewer, sized for a phone."});
-        if (sc.simple < 45) fixes.push({t:"Declutter: remove every element that isn't the face/object or the text. Each extra object splits the half-second of attention you get."});
+        if (sc.colorPop < 55) fixes.push({t:"Make the colors brighter and use only 2–3 of them. Dull, many-colored thumbnails are the top reason people scroll past."});
+        else if (sc.colorPop >= 80) wins.push({t:"Your colors are bright and eye-catching — keep using these same colors in your next videos too."});
+        if (sc.contrast < 55) fixes.push({t:"Make the subject stand out: darken the background, or put a bright glow or outline behind the subject, so it is clear even when the thumbnail is tiny."});
+        else if (sc.contrast >= 80) wins.push({t:"The subject stands out clearly from the background — even at small size."});
+        if (sc.face < 40) fixes.push({t:"Add a big face with a clear expression, or one big main object. A face people can read at a glance gets more clicks than a busy scene."});
+        else if (sc.face >= 70) wins.push({t:"The face or main subject is big and easy to read — exactly what a small phone thumbnail needs."});
+        if (sc.sharp < 50) fixes.push({t:"Use a bigger, sharper picture (at least 1280×720). Blurry thumbnails look even worse after YouTube processes them."});
+        if (sc.textZone < 50) fixes.push({t:"Free up one area for text: blur or darken the " + st.zoneName + " and use it for at most 3 very big words with a thick outline."});
+        else if (sc.textZone >= 75) wins.push({t:"You have a clean empty area (" + st.zoneName + ") — use it for 3 big words or fewer, sized for a phone screen."});
+        if (sc.simple < 45) fixes.push({t:"Remove clutter: take out everything that is not the face/object or the text. Every extra thing steals attention in the half-second you get."});
         var out = fixes.slice(0, 3).concat(wins.slice(0, 2));
         return out.map(function(f, i){ return {text: f.t, win: fixes.indexOf(f) === -1}; });
       }
@@ -437,7 +437,7 @@ var THUMBAI_API = {
         var lines = [];
         lines.push("ThumbAI — Thumbnail Audit");
         lines.push("File: " + state.fileName + " (" + state.dims + ")");
-        lines.push("CTR SCORE: " + overall + "/100 — " + band.label);
+        lines.push("SCORE: " + overall + "/100 — " + band.label);
         lines.push("");
         keys.forEach(function(key){
           var meta = metricMeta(key, st, sc[key]);
@@ -455,8 +455,8 @@ var THUMBAI_API = {
 
         var engNote = $("#engine-note");
         if (engNote) engNote.textContent = state.engine === "ai"
-          ? "Analyzed by " + THUMBAI_API.model + " through your connected vision API — it read the subject, expression and text in the frame. The measurements behind the report come from your actual pixels."
-          : "Scored on-device from your actual pixels — palette, contrast, sharpness, face-region and text-zone signals. Want a deeper AI read (subject, expression, on-image text)? Paste a vision API key in assets/app.js — the THUMBAI_API block at the top — and the same upload goes to the AI instead.";
+          ? "Checked by AI, which looked at the subject, face and any text in your picture."
+          : "Your picture was checked right here on your device — nothing was uploaded or saved anywhere.";
         animateScore(overall);
         var heroNum = $("#hero-score"), heroVerdict = $("#hero-verdict");
         if (state.fileName.indexOf("high-energy") > -1){
@@ -507,8 +507,8 @@ var THUMBAI_API = {
         $("#prompt-out").textContent = text;
         var pnote = $("#engine-note-prompt");
         if (pnote) pnote.textContent = state.aiPrompt
-          ? "Prompt written by " + THUMBAI_API.model + " from the image itself, via your connected API. The palette below is measured from your actual pixels."
-          : "Palette, lighting and mood above are measured from your actual pixels. Paste the prompt into Midjourney, Nano Banana, DALL·E or Stable Diffusion to recreate — or remix — the shot.";
+          ? "This prompt was written by AI from your photo. The colors below were read from your photo."
+          : "The colors above were read from your photo. Paste the prompt into Midjourney, Nano Banana, DALL·E or Stable Diffusion to make a similar picture.";
         var neg = $("#negative-wrap");
         if (state.format === "sd"){
           neg.style.display = "block";
@@ -587,7 +587,7 @@ var THUMBAI_API = {
       }
 
       /* ---------- analysis flow ---------- */
-      var scanSteps = ["measuring color pop","checking contrast & separation","finding the focal region","testing sharpness","mapping text space","scoring composition"];
+      var scanSteps = ["looking at the colors","checking it stands out","looking for a face","checking sharpness","looking for space for text","checking for clutter"];
       function runAnalysis(img){
         $("#empty-state").style.display = "none";
         $("#thumb-results").classList.remove("show");
@@ -651,7 +651,7 @@ var THUMBAI_API = {
         state.aspect = img.naturalWidth / img.naturalHeight;
         $("#preview-meta").textContent = name + " · " + state.dims;
         $("#preview-frame").classList.remove("tiny");
-        $("#tiny-toggle").textContent = "Preview at feed size";
+        $("#tiny-toggle").textContent = "See it small (phone size)";
       }
       function loadImageFromSrc(src, name){
         var img = new Image();
@@ -733,7 +733,7 @@ var THUMBAI_API = {
       $("#tiny-toggle").addEventListener("click", function(){
         var frame = $("#preview-frame");
         var tiny = frame.classList.toggle("tiny");
-        this.textContent = tiny ? "Back to full size" : "Preview at feed size";
+        this.textContent = tiny ? "Back to full size" : "See it small (phone size)";
       });
       $("#topic-input").addEventListener("input", function(){
         if (state.stats && state.mode === "thumb") renderThumb();
@@ -765,7 +765,8 @@ var THUMBAI_API = {
         var extra = state.format === "sd" ? "\n\nNegative prompt: blurry, low-resolution, dull colors, cluttered composition, watermark, text artifacts, deformed hands, extra fingers, noisy background" : "";
         downloadText("thumbai-prompt.txt", state.promptText + extra);
       });
-      $("#copy-showcase").addEventListener("click", function(){
+      var showcaseBtn = $("#copy-showcase");
+      if (showcaseBtn) showcaseBtn.addEventListener("click", function(){
         copyText($("#showcase-prompt").textContent.trim(), "Prompt copied");
       });
 
